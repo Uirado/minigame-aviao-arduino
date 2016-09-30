@@ -14,7 +14,10 @@ int loopDelay = 100;
 int loopsWait = 10;
 int loopCount = 0;
 int jogoIniciado = 0;
+<<<<<<< HEAD
+=======
 unsigned long tempo;
+>>>>>>> master
 
 byte preto[8] = {
   0b11111,
@@ -83,10 +86,17 @@ void loop() {
       valorBt_L = digitalRead(bt_L);
       valorBt_R = digitalRead(bt_R);
       lcd.home();
+<<<<<<< HEAD
+      lcd.print("  Press L or R  ");
+      lcd.setCursor(0,1);
+      lcd.print("   to start!!   ");
+      if(valorBt_L == HIGH || valorBt_R == HIGH){
+=======
       lcd.print(" Press L and R  ");
       lcd.setCursor(0,1);
       lcd.print("   to start!!   ");
       if(valorBt_L == HIGH && valorBt_R == HIGH){
+>>>>>>> master
         break;
       }
       delay(1000);
@@ -119,7 +129,11 @@ void loop() {
     }
     
     //lê botoes
+<<<<<<< HEAD
+
+=======
     tempo = millis();
+>>>>>>> master
     valorBt_L = digitalRead(bt_L);
     valorBt_R = digitalRead(bt_R);
     if(valorBt_L == HIGH && valorBt_R == LOW){
