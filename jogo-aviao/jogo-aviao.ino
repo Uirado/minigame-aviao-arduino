@@ -1,3 +1,4 @@
+#define MAX_SHOT_INTERVAL 14
 #include <LiquidCrystal.h>
 
 LiquidCrystal lcd(12,11,5,4,3,2);
@@ -7,15 +8,16 @@ int valorBt_L;
 int valorBt_R;
 int posicaoAviao;
 int posicaoInimigo;
-int posicaoTiroX;
-int posicaoTiroY;
-int podeAtirar = 1;
-int loopDelay = 100;
-int loopsWait = 10;
-int loopCount = 0;
+int podeAtirar;
+int loopDelay;
+int loopsWait;
+int loopCount;
 int jogoIniciado = 0;
-char tirosL[] = "               ";
-char tirosR[] = "               ";
+char tirosL[16];
+char tirosR[16];
+char tiroSymbol = '*';
+int intervalo;
+int intervaloMinimo;
 
 byte preto[8] = {
   0b11111,
@@ -62,6 +64,8 @@ void exibirInimigo();
 void gameOver();
 void aumentarDificuldade();
 void exibirExplosao();
+void adicionarTiro(char *tiros);
+void tirosShiftLeft(char *tiros);
 
 void setup() {
   // put your setup code here, to run once:
@@ -101,23 +105,14 @@ void loop() {
     //posicionar inimigo  
     if(loopCount < loopsWait){
       loopCount++;
-    } else{
-      if(posicaoAviao == 0){
-        posicaoInimigo = 0;
-      } else{
-        posicaoInimigo = 1;
-      }
-      exibirInimigo();
-      
-      //Inimigo Atira
-      if(posicaoInimigo == posicaoAviao){
-        if(podeAtirar){
-          atirar();
-          aumentarDificuldade();
-        }
-      }
+    } else if(loopCount == loopsWait){
       loopCount = 0;
+      posicaoInimigo = random(1,2) -1;
     }
+    exibirInimigo();
+    //Inimigo Atira
+
+    
     
     //lê botoes
 
@@ -142,26 +137,54 @@ void loop() {
 
 
 void atirar(){
+  int i;
+  int tiros = random(2,4) -1;
   podeAtirar = 0;
-  posicaoTiroX = posicaoInimigo;
-  posicaoTiroY = 15;
-  exibirTiros();
+  intervalo = 0;
+  if(posicaoInimigo == 0){
+    for(i = 0; i < tiros; i++){
+      adicionarTiro(tirosL);
+      tirosShiftLeft(tirosR);
+      exibirTiros();
+    }
+  } else{
+    for(i = 0; i < tiros; i++){
+      adicionarTiro(tirosR);
+      tirosShiftLeft(tirosL);
+      exibirTiros();
+    }
+  }
+}
+
+void adicionarTiro(char *tiros){
+  tirosShiftLeft(tiros);
+  tiros[14] = tiroSymbol;
+}
+void tirosShiftLeft(char *tiros){
+  int i;
+  for(i = 0; i < 14; i++){
+    tiros[i] = tiros[i+1];
+  }
+  tiros[14] = ' ';
 }
 
 void trajetoTiro(){
   
-  if(posicaoTiroX == posicaoAviao && posicaoTiroY == 0){
+  if(tirosL[0] == tiroSymbol && posicaoAviao == 0 || tirosR[0] == tiroSymbol && posicaoAviao  == 1 ){
     //morreu
     gameOver();
     jogoIniciado = 0;
-  } else if(posicaoTiroY < 0){
-    posicaoTiroY -1;
+  } else if(intervalo == intervaloMinimo){
     podeAtirar = 1;
+    atirar();
+    aumentarDificuldade();
   } else{
-    posicaoTiroY--;
+    intervalo++;
     podeAtirar = 0;
     exibirTiros();
   }
+    tirosShiftLeft(tirosL);
+    tirosShiftLeft(tirosR);
 }
 
 
@@ -187,11 +210,13 @@ void limparInimigo(){
 }
 
 void start(){
+  int i;
   lcd.clear();
   lcd.home();
   lcd.print("     START");
   delay(2000);
-
+  
+  jogoIniciado = 1;
   
   lcd.clear();
    //carrega aviao
@@ -205,24 +230,30 @@ void start(){
   posicaoInimigo = 1;
 
   //carregar tiro
-  posicaoTiroX = 0;
-  posicaoTiroY = -1;
   podeAtirar = 1;
-  jogoIniciado = 1;
+  intervalo = 0;
+  intervaloMinimo = MAX_SHOT_INTERVAL;
+  
+  //resetar tiros
+  for(i = 0; i < 15; i++){
+    tirosL[i] = ' ';
+    tirosR[i] = ' ';
+  }
+  tirosL[15] = '\0';
+  tirosR[15] = '\0';
 
   //dificuldade inicial
-  loopDelay = 100;
+  loopDelay = 150;
   loopsWait = 10;
 
-  
 }
 
 void exibirTiros(){
   
   limparCeu();
-  lcd.setCursor(0,0);
+  lcd.setCursor(1,0);
   lcd.print(tirosL);
-  lcd.setCursor(0,1);
+  lcd.setCursor(1,1);
   lcd.print(tirosR);
 }
 
@@ -263,9 +294,16 @@ void gameOver(){
 }
 
 void aumentarDificuldade(){
-  if(loopDelay > 20){
-    loopDelay = loopDelay - 5;
-    loopsWait--;
+  if(loopDelay > 50){
+    loopDelay = loopDelay - 1;
+    if(loopsWait > 5){
+      loopsWait--;
+    }
+    if(intervaloMinimo > 2){
+      intervaloMinimo--;
+    }
+  }  else{
+     intervaloMinimo = random(1,5);
   }
 }
 
