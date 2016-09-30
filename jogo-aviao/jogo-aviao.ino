@@ -14,6 +14,8 @@ int loopDelay = 100;
 int loopsWait = 10;
 int loopCount = 0;
 int jogoIniciado = 0;
+char tirosL[] = "               ";
+char tirosR[] = "               ";
 
 byte preto[8] = {
   0b11111,
@@ -54,7 +56,7 @@ void limparCeu();
 void trajetoTiro();
 void atirar();
 void start();
-void exibirTiro();
+void exibirTiros();
 void exibirAviao();
 void exibirInimigo();
 void gameOver();
@@ -143,7 +145,7 @@ void atirar(){
   podeAtirar = 0;
   posicaoTiroX = posicaoInimigo;
   posicaoTiroY = 15;
-  exibirTiro();
+  exibirTiros();
 }
 
 void trajetoTiro(){
@@ -158,7 +160,7 @@ void trajetoTiro(){
   } else{
     posicaoTiroY--;
     podeAtirar = 0;
-    exibirTiro();
+    exibirTiros();
   }
 }
 
@@ -215,10 +217,13 @@ void start(){
   
 }
 
-void exibirTiro(){
+void exibirTiros(){
+  
   limparCeu();
-  lcd.setCursor(posicaoTiroY,posicaoTiroX);
-  lcd.print("*");
+  lcd.setCursor(0,0);
+  lcd.print(tirosL);
+  lcd.setCursor(0,1);
+  lcd.print(tirosR);
 }
 
 void exibirAviao(){
