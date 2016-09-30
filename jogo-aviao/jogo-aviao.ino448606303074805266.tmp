@@ -74,48 +74,61 @@ void setup() {
 }
 
 void loop() {
+ 
   if(jogoIniciado == 0){
-    start();
-  }
-
-  //posicionar inimigo  
-  if(loopCount < loopsWait){
-    loopCount++;
+    //lê botoes
+    valorBt_L = digitalRead(bt_L);
+    valorBt_R = digitalRead(bt_R);
+    
+    lcd.home();
+    lcd.print(" Press L and R  ");
+    lcd.setCursor(0,1);
+    lcd.print("   to Start!    ");
+    if(valorBt_L == HIGH && valorBt_R == HIGH){
+      start();
+    } 
   } else{
-    if(posicaoAviao == 0){
-      posicaoInimigo = 0;
+    //INICIO DA EXECUÇÃO
+    
+    //posicionar inimigo  
+    if(loopCount < loopsWait){
+      loopCount++;
     } else{
-      posicaoInimigo = 1;
+      if(posicaoAviao == 0){
+        posicaoInimigo = 0;
+      } else{
+        posicaoInimigo = 1;
+      }
+      exibirInimigo();
+      
+      //Inimigo Atira
+      if(posicaoInimigo == posicaoAviao){
+        if(podeAtirar){
+          atirar();
+          aumentarDificuldade();
+        }
+      }
+      loopCount = 0;
     }
+    
+    //lê botoes
+    valorBt_L = digitalRead(bt_L);
+    valorBt_R = digitalRead(bt_R);
+    if(valorBt_L == HIGH && valorBt_R == LOW){
+      posicaoAviao = 0;
+    } else if(valorBt_L == LOW && valorBt_R == HIGH){
+      posicaoAviao = 1;
+    }
+    
+    exibirAviao();
+  
+    trajetoTiro();
+    
     exibirInimigo();
     
-    //Inimigo Atira
-    if(posicaoInimigo == posicaoAviao){
-      if(podeAtirar){
-        atirar();
-        aumentarDificuldade();
-      }
-    }
-    loopCount = 0;
+    delay(loopDelay);
+    //FIM DA EXECUÇÃO
   }
-  
-
-  //lê botoes
-  valorBt_L = digitalRead(bt_L);
-  valorBt_R = digitalRead(bt_R);
-  if(valorBt_L == HIGH && valorBt_R == LOW){
-    posicaoAviao = 0;
-  } else if(valorBt_L == LOW && valorBt_R == HIGH){
-    posicaoAviao = 1;
-  }
-  
-  exibirAviao();
-
-  trajetoTiro();
-  
-  exibirInimigo();
-  
-  delay(loopDelay);
 }
 
 
